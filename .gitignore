@@ -1,0 +1,42 @@
+# 🔹 Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 🔹 Virtual environment (VERY IMPORTANT)
+venv/
+env/
+rag-engine/
+.venv/
+
+# 🔹 OS files
+.DS_Store
+Thumbs.db
+
+# 🔹 Logs
+*.log
+
+# 🔹 Environment variables
+.env
+
+# 🔹 Jupyter
+.ipynb_checkpoints/
+
+# 🔹 Vector DB / embeddings (RAG specific)
+vector_store/
+faiss_index/
+*.faiss
+*.pkl
+
+# 🔹 Build / dist
+build/
+dist/
+*.egg-info/
+
+# 🔹 VS Code / IDE
+.vscode/
+.idea/
+
+# 🔹 Temporary files
+*.tmp
