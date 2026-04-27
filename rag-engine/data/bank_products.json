@@ -1,0 +1,51 @@
+[
+  {
+    "product": "Fixed Deposit",
+    "type": "saving",
+    "risk": "low",
+    "description": "Safe investment with guaranteed returns over a fixed period.",
+    "best_for": "low risk, savings, stability"
+  },
+  {
+    "product": "Savings Account",
+    "type": "saving",
+    "risk": "low",
+    "description": "Basic account for storing money with high liquidity.",
+    "best_for": "daily use, emergency funds"
+  },
+  {
+    "product": "Mutual Funds",
+    "type": "investment",
+    "risk": "high",
+    "description": "Market-linked investment with potential high returns.",
+    "best_for": "long-term growth, wealth creation"
+  },
+  {
+    "product": "SIP",
+    "type": "investment",
+    "risk": "medium",
+    "description": "Invest small amounts regularly in mutual funds.",
+    "best_for": "disciplined investing"
+  },
+  {
+    "product": "Credit Card",
+    "type": "credit",
+    "risk": "medium",
+    "description": "Short-term borrowing with rewards and cashback.",
+    "best_for": "shopping, rewards"
+  },
+  {
+    "product": "Personal Loan",
+    "type": "loan",
+    "risk": "high",
+    "description": "Unsecured loan for immediate financial needs.",
+    "best_for": "urgent expenses"
+  },
+  {
+    "product": "Insurance",
+    "type": "protection",
+    "risk": "low",
+    "description": "Financial protection against risks and uncertainties.",
+    "best_for": "security, risk coverage"
+  }
+]
