@@ -6,7 +6,7 @@ import numpy as np
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
 
-# 🔹 Create embeddings (bulk)
+#  Create embeddings (bulk)
 def create_embeddings(json_data, pdf_docs):
     texts = []
 
@@ -24,7 +24,7 @@ def create_embeddings(json_data, pdf_docs):
     return embeddings, texts
 
 
-# 🔹 Create FAISS index
+# Create FAISS index
 def create_faiss_index(embeddings):
     dimension = embeddings.shape[1]
     index = faiss.IndexFlatL2(dimension)
@@ -33,6 +33,6 @@ def create_faiss_index(embeddings):
     return index
 
 
-# 🔥 ADD THIS FUNCTION (VERY IMPORTANT)
+#  ADD THIS FUNCTION 
 def embed_text(query):
     return model.encode([query])

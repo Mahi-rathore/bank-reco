@@ -13,15 +13,13 @@ from django.views.decorators.csrf import csrf_exempt
 from .llm import generate_response
 
 
-# 👇 add rag-engine path
+#  add rag-engine path
 sys.path.append(os.path.abspath("../rag-engine"))
-#
+
 from utils.rag_pipeline import retrieve
 
 
-# -----------------------------
-# 🔹 Helper: Parse JSON safely
-# -----------------------------
+#  Helper: Parse JSON safely  
 def parse_request_body(request):
     try:
         return json.loads(request.body)
@@ -29,9 +27,7 @@ def parse_request_body(request):
         return None
 
 
-# -----------------------------
-# 🔹 RECOMMEND API (basic)
-# -----------------------------
+#  RECOMMEND API (basic)
 @csrf_exempt
 def recommend(request):
 
@@ -56,7 +52,8 @@ def recommend(request):
         )
 
     try:
-        # 🔹 Filter products
+
+        #  Filter products
         products = Product.objects.filter(
             category__iexact=goal,
             min_income__lte=income
@@ -78,9 +75,8 @@ def recommend(request):
         return JsonResponse({"error": str(e)}, status=500)
 
 
-# -----------------------------
-# 🔹 ASK API (AI Chatbot 🔥)
-# -----------------------------
+
+#  ASK API (AI Chatbot )
 @csrf_exempt
 def ask(request):
 
@@ -99,9 +95,9 @@ def ask(request):
         if income is None or goal is None or query is None:
             return JsonResponse({"error": "Missing fields"}, status=400)
 
-        # -----------------------------
-        # 1️⃣ DB RESULTS
-        # -----------------------------
+        
+        #  DB RESULTS
+        
         products = Product.objects.filter(
             category__iexact=goal,
             min_income__lte=income
@@ -116,20 +112,20 @@ def ask(request):
             for p in products
         ]
 
-        # -----------------------------
-        # 2️⃣ RAG RESULTS (PDF)
-        # -----------------------------
+        
+        #  RAG RESULTS (PDF)
+        
         rag_query = f"{goal} {risk} {query}"
         rag_results = retrieve(rag_query)
 
-        # -----------------------------
-        # 3️⃣ MERGE
-        # -----------------------------
+        
+        #  MERGE
+        
         all_results = db_results + rag_results
 
-        # -----------------------------
-        # 4️⃣ PROFILE
-        # -----------------------------
+        
+        #  PROFILE
+        
         profile = {
             "age": age,
             "income": income,
@@ -137,9 +133,9 @@ def ask(request):
             "risk": risk
         }
 
-        # -----------------------------
-        # 5️⃣ LLM
-        # -----------------------------
+       
+        #  LLM
+        
         ai_answer = generate_response(all_results, profile, query)
 
         return JsonResponse({

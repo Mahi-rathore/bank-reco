@@ -4,18 +4,16 @@ import os
 import numpy as np
 from utils.embeddings import embed_text
 
-# -----------------------------
-# 🔥 CORRECT PATH (VERY IMPORTANT)
-# -----------------------------
+
 BASE_DIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "../vector_store")
 )
 
-print("👉 USING VECTOR STORE FROM:", BASE_DIR)
+print(" USING VECTOR STORE FROM:", BASE_DIR)
 
-# -----------------------------
-# 🔥 LOAD FILES
-# -----------------------------
+
+#  LOAD FILES
+
 index = faiss.read_index(os.path.join(BASE_DIR, "faiss_index.bin"))
 
 with open(os.path.join(BASE_DIR, "texts.pkl"), "rb") as f:
@@ -24,15 +22,15 @@ with open(os.path.join(BASE_DIR, "texts.pkl"), "rb") as f:
 with open(os.path.join(BASE_DIR, "data.pkl"), "rb") as f:
     data = pickle.load(f)
 
-print("👉 INDEX SIZE:", index.ntotal)
+print("INDEX SIZE:", index.ntotal)
 
 
-# -----------------------------
-# 🔥 RETRIEVE FUNCTION
-# -----------------------------
+
+#  RETRIEVE FUNCTION
+
 def retrieve(query, top_k=3):
 
-    print("👉 QUERY:", query)
+    print(" QUERY:", query)
 
     # convert to embedding
     query_vector = embed_text(query)
@@ -43,7 +41,7 @@ def retrieve(query, top_k=3):
     # search
     D, I = index.search(query_vector, top_k)
 
-    print("👉 INDICES:", I)
+    print(" INDICES:", I)
 
     results = []
 
@@ -56,6 +54,6 @@ def retrieve(query, top_k=3):
                 "description": item.get("description", texts[idx])
             })
 
-    print("👉 RETRIEVED:", results)
+    print(" RETRIEVED:", results)
 
     return results

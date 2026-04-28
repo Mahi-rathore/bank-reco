@@ -4,14 +4,12 @@ import sys, os
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-# -----------------------------
+
 # CONFIG
-# -----------------------------
 st.set_page_config(page_title="AI Bank Advisor", layout="wide")
 
-# -----------------------------
+
 # STYLE
-# -----------------------------
 st.markdown("""
 <style>
 
@@ -36,15 +34,13 @@ st.markdown("""
 
 </style>
 """, unsafe_allow_html=True)
-# -----------------------------
+
 # HEADER
-# -----------------------------
 st.title("🏦 AI Bank Advisor")
 st.caption("Smart Financial Insights Dashboard")
 
-# -----------------------------
+
 # INPUT
-# -----------------------------
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
@@ -66,9 +62,8 @@ profile = {
     "risk": risk
 }
 
-# -----------------------------
+
 # SCORE
-# -----------------------------
 def get_score(income, risk):
     if income == 0:
         return "—"
@@ -81,23 +76,20 @@ def get_score(income, risk):
 
 score = get_score(income, risk)
 
-# -----------------------------
+
 # CARDS
-# -----------------------------
 c1, c2, c3 = st.columns(3)
 
 c1.markdown(f'<div class="card">💰<h2>₹{income}</h2>Income</div>', unsafe_allow_html=True)
 c2.markdown(f'<div class="card">🎯<h2>{goal}</h2>Goal</div>', unsafe_allow_html=True)
 c3.markdown(f'<div class="card">⭐<h2>{score}</h2>Score</div>', unsafe_allow_html=True)
 
-# -----------------------------
+
 # MAIN GRID
-# -----------------------------
 left, mid, right = st.columns([1.2, 1, 1])
 
-# -----------------------------
+
 # INSIGHTS
-# -----------------------------
 with left:
     st.subheader("🧠 Insights")
 
@@ -113,9 +105,8 @@ with left:
         else:
             st.error("High risk: stocks & aggressive funds.")
 
-# -----------------------------
-# 🔥 AUTO RECOMMENDATIONS (FIXED)
-# -----------------------------
+
+#  AUTO RECOMMENDATIONS 
 with mid:
     st.subheader("💳 AI Recommendations")
 
@@ -146,9 +137,9 @@ with mid:
         except:
             st.error("Backend not reachable")
 
-# -----------------------------
-# 📊 CHART (RESTORED)
-# -----------------------------
+
+#  CHART (RESTORED)
+
 with right:
     st.subheader("📊 Breakdown")
 
@@ -168,9 +159,8 @@ with right:
 
         st.plotly_chart(fig, use_container_width=True)
 
-# -----------------------------
+
 # CHATBOT
-# -----------------------------
 st.subheader("💬 AI Assistant")
 
 if "messages" not in st.session_state:
