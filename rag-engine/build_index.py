@@ -6,16 +6,29 @@ from utils.data_loader import load_all_data
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from sentence_transformers import SentenceTransformer
 
+
 # -----------------------------
-# 🔥 Logger function
+# 🔥 Logger
 # -----------------------------
 def log(msg):
     print(f"[LOG] {msg}")
+
+
+# -----------------------------
+# 📁 BASE PATH FIX (IMPORTANT)
+# -----------------------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+VECTOR_STORE_PATH = os.path.join(BASE_DIR, "vector_store")
+
+log(f"Base directory: {BASE_DIR}")
+log(f"Vector store path: {VECTOR_STORE_PATH}")
+
 
 # -----------------------------
 # 🚀 START
 # -----------------------------
 log("Starting index build process...")
+
 
 # -----------------------------
 # 🔥 Load Data
@@ -26,6 +39,7 @@ json_data, pdf_docs = load_all_data()
 
 log(f"Loaded JSON items: {len(json_data)}")
 log(f"Loaded PDF documents: {len(pdf_docs)}")
+
 
 # -----------------------------
 # 🔥 Chunk PDFs
@@ -40,6 +54,7 @@ text_splitter = RecursiveCharacterTextSplitter(
 chunked_docs = text_splitter.split_documents(pdf_docs)
 
 log(f"Total PDF chunks created: {len(chunked_docs)}")
+
 
 # -----------------------------
 # 🔥 Prepare Texts
@@ -61,6 +76,7 @@ for doc in chunked_docs:
 
 log(f"Total texts (JSON + PDF): {len(texts)}")
 
+
 # -----------------------------
 # 🔥 Create Embeddings
 # -----------------------------
@@ -74,6 +90,7 @@ embeddings = model.encode(texts)
 
 log(f"Embeddings created with shape: {embeddings.shape}")
 
+
 # -----------------------------
 # 🔥 Create FAISS Index
 # -----------------------------
@@ -85,18 +102,17 @@ index.add(embeddings)
 
 log(f"FAISS index created with {index.ntotal} vectors")
 
+
 # -----------------------------
-# 🔥 Save Files
+# 🔥 Save Files (FIXED PATH)
 # -----------------------------
-log("Saving FAISS index...")
+log("Saving vector store...")
 
-os.makedirs("vector_store", exist_ok=True)
+os.makedirs(VECTOR_STORE_PATH, exist_ok=True)
 
-faiss.write_index(index, "vector_store/faiss_index.bin")
+faiss.write_index(index, os.path.join(VECTOR_STORE_PATH, "faiss_index.bin"))
 
-log("Saving texts...")
-
-with open("vector_store/texts.pkl", "wb") as f:
+with open(os.path.join(VECTOR_STORE_PATH, "texts.pkl"), "wb") as f:
     pickle.dump(texts, f)
 
 # Combine data for mapping
@@ -105,10 +121,9 @@ combined_data = json_data + [
     for doc in chunked_docs
 ]
 
-log("Saving combined data...")
-
-with open("vector_store/data.pkl", "wb") as f:
+with open(os.path.join(VECTOR_STORE_PATH, "data.pkl"), "wb") as f:
     pickle.dump(combined_data, f)
+
 
 # -----------------------------
 # ✅ DONE
