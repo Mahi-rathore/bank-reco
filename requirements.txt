@@ -7,3 +7,4 @@ groq
 torchvision
 torch
 pypdf
+plotly
