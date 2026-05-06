@@ -4,28 +4,21 @@ import os
 import faiss
 import pickle
 
-# -----------------------------
-# 🔥 Fix import path
-# -----------------------------
+
+# Fix import path
+
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-# -----------------------------
-# 🔥 Logger
-# -----------------------------
 def log(msg):
     print(f"[LOG] {msg}")
 
-log("App started")
 
-# -----------------------------
 # Page config
-# -----------------------------
 st.set_page_config(page_title="AI Bank Advisor", layout="wide")
 st.title("💳 AI Bank Product Recommendation System")
 
-# -----------------------------
+
 # Load RAG (FAISS + Data)
-# -----------------------------
 try:
     if "rag_ready" not in st.session_state:
 
@@ -54,9 +47,8 @@ except Exception as e:
     log(f"ERROR in loading RAG: {e}")
     st.stop()
 
-# -----------------------------
-# 🔹 FORM SECTION
-# -----------------------------
+
+
 st.subheader("Enter Your Details")
 
 col1, col2 = st.columns(2)
@@ -80,9 +72,7 @@ if st.button("Get Recommendations"):
     log("User profile saved")
     st.success("Profile saved! Now chat below 👇")
 
-# -----------------------------
-# 🔹 CHAT SECTION
-# -----------------------------
+#  CHAT SECTION
 st.subheader("💬 Chat with AI Advisor")
 
 if "messages" not in st.session_state:
@@ -93,9 +83,9 @@ for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-# -----------------------------
-# 🔥 CHAT INPUT
-# -----------------------------
+
+# CHAT INPUT
+
 from utils.rag_pipeline import retrieve
 
 user_input = st.chat_input("Type your message...")
@@ -134,21 +124,21 @@ if user_input:
 
             log(f"Retrieved {len(results)} results")
 
-            # 🔥 PRINT RETRIEVED CHUNKS
+            # PRINT RETRIEVED CHUNKS
             log("Printing retrieved chunks:")
             for i, r in enumerate(results):
                 log(f"--- Result {i+1} ---")
                 log(f"Product: {r.get('product', 'N/A')}")
                 log(f"Description: {r.get('description', '')[:200]}")
 
-            # 🔥 SHOW IN UI (VERY USEFUL)
+            # SHOW IN UI (VERY USEFUL)
             with st.expander("🔍 Retrieved Context"):
                 for r in results:
                     st.write(f"**{r.get('product', 'N/A')}**")
                     st.write(r.get("description", ""))
                     st.write("---")
 
-            # 🔥 LLM CALL
+            # LLM CALL
             try:
                 from utils.llm import generate_response
 
