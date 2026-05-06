@@ -6,20 +6,12 @@ from utils.data_loader import load_all_data
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from sentence_transformers import SentenceTransformer
 
-# -----------------------------
-# 🔥 Logger function
-# -----------------------------
+
 def log(msg):
     print(f"[LOG] {msg}")
 
-# -----------------------------
-# 🚀 START
-# -----------------------------
 log("Starting index build process...")
 
-# -----------------------------
-# 🔥 Load Data
-# -----------------------------
 log("Loading JSON + PDF data...")
 
 json_data, pdf_docs = load_all_data()
@@ -27,9 +19,7 @@ json_data, pdf_docs = load_all_data()
 log(f"Loaded JSON items: {len(json_data)}")
 log(f"Loaded PDF documents: {len(pdf_docs)}")
 
-# -----------------------------
-# 🔥 Chunk PDFs
-# -----------------------------
+# Chunk PDFs
 log("Splitting PDF documents into chunks...")
 
 text_splitter = RecursiveCharacterTextSplitter(
@@ -41,9 +31,8 @@ chunked_docs = text_splitter.split_documents(pdf_docs)
 
 log(f"Total PDF chunks created: {len(chunked_docs)}")
 
-# -----------------------------
-# 🔥 Prepare Texts
-# -----------------------------
+
+# Prepare Texts
 log("Preparing text data for embeddings...")
 
 texts = []
@@ -61,9 +50,8 @@ for doc in chunked_docs:
 
 log(f"Total texts (JSON + PDF): {len(texts)}")
 
-# -----------------------------
-# 🔥 Create Embeddings
-# -----------------------------
+#  Create Embeddings
+
 log("Loading embedding model...")
 
 model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -74,9 +62,9 @@ embeddings = model.encode(texts)
 
 log(f"Embeddings created with shape: {embeddings.shape}")
 
-# -----------------------------
-# 🔥 Create FAISS Index
-# -----------------------------
+
+# Create FAISS Index
+
 log("Creating FAISS index...")
 
 dimension = embeddings.shape[1]
@@ -85,9 +73,8 @@ index.add(embeddings)
 
 log(f"FAISS index created with {index.ntotal} vectors")
 
-# -----------------------------
-# 🔥 Save Files
-# -----------------------------
+# Save Files
+
 log("Saving FAISS index...")
 
 os.makedirs("vector_store", exist_ok=True)
@@ -110,7 +97,5 @@ log("Saving combined data...")
 with open("vector_store/data.pkl", "wb") as f:
     pickle.dump(combined_data, f)
 
-# -----------------------------
-# ✅ DONE
-# -----------------------------
-log("✅ Index built and saved successfully!")
+
+log("Index built and saved successfully!")
