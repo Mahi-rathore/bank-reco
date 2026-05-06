@@ -1,7 +1,8 @@
 from groq import Groq
-from config.settings import settings
-settings.groq_api_key
-client = Groq(api_key=settings.groq_api_key)
+from django.conf import settings
+
+client = Groq(api_key=settings.GROQ_API_KEY)
+
 def generate_response(results, profile, user_query):
     try:
         context = ""
@@ -13,22 +14,22 @@ def generate_response(results, profile, user_query):
 You are a financial advisor.
 
 User Profile:
-Age: {profile['age']}
-Income: {profile['income']}
-Goal: {profile['goal']}
-Risk: {profile['risk']}
+Age: {profile.get('age')}
+Income: {profile.get('income')}
+Goal: {profile.get('goal')}
+Risk: {profile.get('risk')}
 
 User Question:
 {user_query}
 
 Available Products:
 {context}
-do not answer out of this context
-Explain best recommendations clearly and simply.
+
+Recommend best products clearly.
 """
 
         response = client.chat.completions.create(
-            model=settings.llm_model,
+            model=settings.LLM_MODEL,
             messages=[{"role": "user", "content": prompt}]
         )
 

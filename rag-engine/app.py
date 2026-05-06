@@ -1,176 +1,199 @@
 import streamlit as st
-import sys
-import os
-import faiss
-import pickle
-
-
-# Fix import path
+import requests
+import sys, os
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-def log(msg):
-    print(f"[LOG] {msg}")
 
-
-# Page config
+# CONFIG
 st.set_page_config(page_title="AI Bank Advisor", layout="wide")
-st.title("💳 AI Bank Product Recommendation System")
 
 
-# Load RAG (FAISS + Data)
-try:
-    if "rag_ready" not in st.session_state:
+# STYLE
+st.markdown("""
+<style>
 
-        log("Loading FAISS index...")
-        index = faiss.read_index("vector_store/faiss_index.bin")
+/* Fix chat visibility */
+.stChatMessage {
+    background-color: #ffffff !important;
+    color: #111 !important;
+    
+}
 
-        log("Loading texts...")
-        with open("vector_store/texts.pkl", "rb") as f:
-            texts = pickle.load(f)
+/* assistant message */
+[data-testid="stChatMessageAssistant"] {
+    background-color: #f1f5f9 !important;
+    color: #111 !important;
+}
 
-        log("Loading data...")
-        with open("vector_store/data.pkl", "rb") as f:
-            data = pickle.load(f)
+/* user message */
+[data-testid="stChatMessageUser"] {
+    background-color: #dbeafe !important;
+    color: #111 !important;
+}
 
-        st.session_state["index"] = index
-        st.session_state["texts"] = texts
-        st.session_state["data"] = data
-        st.session_state["rag_ready"] = True
+</style>
+""", unsafe_allow_html=True)
 
-        log(f"Loaded {len(texts)} texts")
-        log(f"Loaded {len(data)} data entries")
-        log("RAG ready")
-
-except Exception as e:
-    st.error(f"❌ RAG Load Error: {e}")
-    log(f"ERROR in loading RAG: {e}")
-    st.stop()
+# HEADER
+st.title("🏦 AI Bank Advisor")
+st.caption("Smart Financial Insights Dashboard")
 
 
-
-st.subheader("Enter Your Details")
-
-col1, col2 = st.columns(2)
+# INPUT
+col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    age = st.number_input("Age", min_value=18, max_value=100)
-    income = st.number_input("Annual Income (₹)", min_value=0)
+    age = st.number_input("Age", 0, 100, 0)
 
 with col2:
+    income = st.number_input("Income", 0, 10000000, 0)
+
+with col3:
     goal = st.selectbox("Goal", ["Saving", "Investment", "Loan", "Insurance"])
-    risk = st.selectbox("Risk Level", ["Low", "Medium", "High"])
 
-# Save profile
-if st.button("Get Recommendations"):
-    st.session_state["user_profile"] = {
-        "age": age,
-        "income": income,
-        "goal": goal,
-        "risk": risk
-    }
-    log("User profile saved")
-    st.success("Profile saved! Now chat below 👇")
+with col4:
+    risk = st.selectbox("Risk", ["Low", "Medium", "High"])
 
-#  CHAT SECTION
-st.subheader("💬 Chat with AI Advisor")
+profile = {
+    "age": age,
+    "income": income,
+    "goal": goal,
+    "risk": risk
+}
+
+
+# SCORE
+def get_score(income, risk):
+    if income == 0:
+        return "—"
+    score = income / 10000
+    if risk == "High":
+        score *= 1.5
+    elif risk == "Low":
+        score *= 0.8
+    return round(score, 2)
+
+score = get_score(income, risk)
+
+
+# CARDS
+c1, c2, c3 = st.columns(3)
+
+c1.markdown(f'<div class="card">💰<h2>₹{income}</h2>Income</div>', unsafe_allow_html=True)
+c2.markdown(f'<div class="card">🎯<h2>{goal}</h2>Goal</div>', unsafe_allow_html=True)
+c3.markdown(f'<div class="card">⭐<h2>{score}</h2>Score</div>', unsafe_allow_html=True)
+
+
+# MAIN GRID
+left, mid, right = st.columns([1.2, 1, 1])
+
+
+# INSIGHTS
+with left:
+    st.subheader("🧠 Insights")
+
+    if income == 0:
+        st.warning("Enter income")
+    else:
+        if goal == "Insurance":
+            st.info("Health & Life insurance recommended.")
+        elif risk == "Low":
+            st.success("Safe strategy: FD & savings.")
+        elif risk == "Medium":
+            st.info("Balanced strategy: SIP & savings.")
+        else:
+            st.error("High risk: stocks & aggressive funds.")
+
+
+#  AUTO RECOMMENDATIONS 
+with mid:
+    st.subheader("💳 AI Recommendations")
+
+    if income == 0:
+        st.warning("Enter income to get recommendations")
+    else:
+        try:
+            response = requests.post(
+                "http://127.0.0.1:8000/ask/",
+                json={
+                    "query": "Recommend best financial products",
+                    "age": age,
+                    "income": income,
+                    "goal": goal,
+                    "risk": risk
+                }
+            )
+
+            data = response.json()
+            results = data.get("results", [])
+
+            for r in results[:3]:  # show top 3
+                st.markdown(
+                    f'<div class="small-card"><b>{r["product"]}</b><br>{r["description"][:120]}</div>',
+                    unsafe_allow_html=True
+                )
+
+        except:
+            st.error("Backend not reachable")
+
+
+#  CHART (RESTORED)
+
+with right:
+    st.subheader("📊 Breakdown")
+
+    if income == 0:
+        st.info("Enter income")
+    else:
+        import plotly.express as px
+
+        spending = income * 0.6
+        savings = income * 0.4
+
+        fig = px.pie(
+            names=["Spending", "Savings"],
+            values=[spending, savings],
+            hole=0.5
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
+
+# CHATBOT
+st.subheader("💬 AI Assistant")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Show chat history
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
+user_query = st.chat_input("Ask your financial question...")
 
-# CHAT INPUT
+if user_query:
 
-from utils.rag_pipeline import retrieve
+    st.session_state.messages.append({"role": "user", "content": user_query})
 
-user_input = st.chat_input("Type your message...")
+    with st.chat_message("user"):
+        st.markdown(user_query)
 
-if user_input:
-    log(f"User input: {user_input}")
+    response = requests.post(
+        "http://127.0.0.1:8000/ask/",
+        json={
+            "query": user_query,
+            "age": age,
+            "income": income,
+            "goal": goal,
+            "risk": risk
+        }
+    )
 
-    st.session_state.messages.append({
-        "role": "user",
-        "content": user_input
-    })
+    data = response.json()
+    ai_answer = data.get("ai_answer", "No response")
 
-    if "user_profile" in st.session_state:
-        profile = st.session_state["user_profile"]
+    st.session_state.messages.append({"role": "assistant", "content": ai_answer})
 
-        try:
-            # 🔥 Build query
-            log("Building query with profile...")
-
-            query = f"""
-            Age: {profile['age']}
-            Income: {profile['income']}
-            Goal: {profile['goal']}
-            Risk: {profile['risk']}
-            Query: {user_input}
-            """
-
-            log("Running FAISS retrieval...")
-
-            results = retrieve(
-                query,
-                st.session_state["index"],
-                st.session_state["texts"],
-                st.session_state["data"]
-            )
-
-            log(f"Retrieved {len(results)} results")
-
-            # PRINT RETRIEVED CHUNKS
-            log("Printing retrieved chunks:")
-            for i, r in enumerate(results):
-                log(f"--- Result {i+1} ---")
-                log(f"Product: {r.get('product', 'N/A')}")
-                log(f"Description: {r.get('description', '')[:200]}")
-
-            # SHOW IN UI (VERY USEFUL)
-            with st.expander("🔍 Retrieved Context"):
-                for r in results:
-                    st.write(f"**{r.get('product', 'N/A')}**")
-                    st.write(r.get("description", ""))
-                    st.write("---")
-
-            # LLM CALL
-            try:
-                from utils.llm import generate_response
-
-                log("Calling LLM...")
-
-                with st.spinner("🤖 Thinking..."):
-                    response = generate_response(results, profile, user_input)
-
-                log("LLM response generated")
-
-            except Exception as e:
-                log(f"LLM ERROR: {e}")
-
-                response = "### 💡 Recommended Products:\n\n"
-                for r in results:
-                    response += f"**{r['product']}**\n{r['description']}\n\n"
-
-                response += f"\n⚠️ LLM Error: {str(e)}"
-
-        except Exception as e:
-            log(f"ERROR during retrieval: {e}")
-            response = f"❌ Error: {str(e)}"
-
-    else:
-        response = "⚠️ Please fill the form first 👆"
-
-    # Save response
-    st.session_state.messages.append({
-        "role": "assistant",
-        "content": response
-    })
-
-    # Display response
     with st.chat_message("assistant"):
-        st.markdown(response)
+        st.markdown(ai_answer)

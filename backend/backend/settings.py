@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-cy6_-b$!wc0m5n1dazyqf&z$m)*(udu=rkjmw4k*3dl+#=-o7p'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'products',
 ]
 
 MIDDLEWARE = [
@@ -120,3 +121,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LLM_MODEL="llama-3.3-70b-versatile"
+EMBEDDING_MODEL="all-MiniLM-L6-v2"
+GROQ_API_KEY=""
